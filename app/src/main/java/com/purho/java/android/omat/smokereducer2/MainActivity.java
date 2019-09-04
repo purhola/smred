@@ -23,25 +23,37 @@ calculate the minutes getting most points
 
 
 
+import android.Manifest;
+import android.annotation.TargetApi;
+//import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,14 +67,19 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 public class MainActivity extends AppCompatActivity {
 
 
     private MyDbAdapter helper;
 
+    private int STORAGE_PERMISSION_CODE = 1;
     Button btnSmokeNow;
     Button btnSmokeOnTime;
     Button btnSkipSmoke;
+    String dbname;
 
 
     @Override
@@ -78,18 +95,33 @@ public class MainActivity extends AppCompatActivity {
         btnSmokeOnTime = (Button) findViewById(R.id.btnSmokeOnTime);
         btnSkipSmoke = (Button) findViewById(R.id.btnSkip);
 
+        dbname="playtodella1";
+
+
 
         //Copy the db to sdcard.. TODO katsellaan
         //nimen sais varmaan helpperillä..
 
 
-        exportDatabase("playtodella1");
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(MainActivity.this, "You have already granted this permission!",
+                    Toast.LENGTH_LONG).show();
+           // System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX OK OK OK OK OK");
+            exportDatabase(dbname);
+        } else {
+            requestStoragePermission();
+          //  System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX PYYDÄ LUPAA");
+        }
+    }
+
+        //exportDatabase(dbname);
 
 
         //THIS below WORKS!! Use where needed!
         //showNotification();
 
-    }
+
 
 
     private void showNotification() {
@@ -126,11 +158,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void insertSmoke(View v) {
 
-        System.out.println("pitäis kirjoitella kantaan " );
+        //System.out.println("pitäis kirjoitella kantaan " );
 
 
         String smoketime = getCurrentLocalDateTimeStamp();
-        System.out.println("mitähän  " + smoketime);
+        //System.out.println("mitähän  " + smoketime);
         long id=0;
 
         id=helper.insertSmokePoint(smoketime);
@@ -183,26 +215,27 @@ public class MainActivity extends AppCompatActivity {
 
             if (card==1) {
                 String currentDBPath = "//data//"+getPackageName()+"//databases//"+databaseName+"";
-                System.out.println("KANNAN PAIKKA " + currentDBPath);
+                //System.out.println("KANNAN PAIKKA " + currentDBPath);
                 String backupDBPath = "//smokedsmokes";
                 File currentDB = new File(data, currentDBPath);
                 File backupDB = new File(sd, backupDBPath);
 
                 if (currentDB.exists()) {
-                    System.out.println("KANTA LÖYTYY IFFIIN" );
+                    //System.out.println("KANTA LÖYTYY IFFIIN" );
 
                     Toast.makeText(this, "DB exists", Toast.LENGTH_LONG).show();
                     FileChannel src = new FileInputStream(currentDB).getChannel();
                     FileChannel dst = new FileOutputStream(backupDB).getChannel();
                     dst.transferFrom(src, 0, src.size());
+                    //System.out.println("TONNE PITI MENNÄ TONNE PITI MENNÄ TONNE PITI MENNÄ : "+ "SOURCE: " + src + " " + currentDB +  " DEST: "+ dst + " " + backupDB);
                     src.close();
                     dst.close();
                 }
-                else System.out.println("EI LÖYDY KANTAA  *****************************************************************************************************" );
+                //else System.out.println("EI LÖYDY KANTAA  *****************************************************************************************************" );
             }
             else {
-                System.out.println("EI PYSTY KIRJOITTAAN");
-                //Toast.makeText(this, "Can't write SD card", Toast.LENGTH_LONG).show();
+                //System.out.println("EI PYSTY KIRJOITTAAN");
+                Toast.makeText(this, "Can't write SD card", Toast.LENGTH_LONG).show();
             }
 
         } catch (Exception e) {
@@ -212,6 +245,45 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void requestStoragePermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission needed")
+                    .setMessage("This permission is needed because of this and that")
+                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                        }
+                    })
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create().show();
+
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == STORAGE_PERMISSION_CODE)  {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permission GRANTED", Toast.LENGTH_LONG).show();
+                System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX LUPA SAATU");
+                exportDatabase(dbname);
+            } else {
+                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_LONG).show();
+                System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX EI SAATU LUPAA");
+            }
+        }
+    }
 }
-
-
