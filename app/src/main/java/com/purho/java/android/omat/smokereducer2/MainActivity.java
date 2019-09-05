@@ -31,6 +31,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
@@ -165,7 +166,12 @@ public class MainActivity extends AppCompatActivity {
         //System.out.println("mitähän  " + smoketime);
         long id=0;
 
+
         id=helper.insertSmokePoint(smoketime);
+        if(id>0) Toast.makeText(this, "Cig saved", Toast.LENGTH_LONG).show();
+
+
+
         Optimizer optimize = new Optimizer();
 
     }
@@ -179,6 +185,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    public void adminAct(View v){
+
+        Intent intent = new Intent(this,AdminActivity.class);
+        startActivity(intent);
+    }
+
 
     public String getCurrentLocalDateTimeStamp() {
         return LocalDateTime.now()
@@ -216,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
             if (card==1) {
                 String currentDBPath = "//data//"+getPackageName()+"//databases//"+databaseName+"";
                 //System.out.println("KANNAN PAIKKA " + currentDBPath);
-                String backupDBPath = "//smokedsmokes";
+                String backupDBPath = "//smokedsmokes.db";
                 File currentDB = new File(data, currentDBPath);
                 File backupDB = new File(sd, backupDBPath);
 

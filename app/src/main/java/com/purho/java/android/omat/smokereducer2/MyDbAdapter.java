@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 public class MyDbAdapter implements Serializable {
 
     private myDbHelper myhelper;
+    private Integer intpoints;
 
 
     public MyDbAdapter(Context context)
@@ -46,7 +48,48 @@ public class MyDbAdapter implements Serializable {
         contentValues.put(myDbHelper.SMOKEPOINT, sqlargs[0]);
 
         long insert = dbb.insert(myDbHelper.TABLE_SMOKEPOINT, null , contentValues);
+
         return insert;
+    }
+
+    public long insertAssignedPoints(String smoketime,String points)
+    {
+
+        /*INSERT INTO phonebook2(name,phonenumber,validDate)
+        VALUES('Alice','704-555-1212','2018-05-08')
+        ON CONFLICT(name) DO UPDATE SET
+        phonenumber=excluded.phonenumber,
+                validDate=excluded.validDate
+        WHERE excluded.validDate>phonebook2.validDate;
+        */
+
+        //private static final String TABLE_ASSIGNED = "assignedpoints";   //
+        //private static final String DAILYSMOKEPOINT = "dailysmokepoint";     //
+        //private static final String DAILYPOINTS = "dailypoints";
+        intpoints=0;
+        intpoints= Integer.parseInt(points);
+
+        SQLiteDatabase db = myhelper.getWritableDatabase();
+        String sqlquery="INSERT INTO assignedpoints (dailysmokepoint,dailypoints) "+
+                "VALUES( " + smoketime +", " + points + ") " +
+                "ON CONFLICT (dailysmokepoint) DO UPDATE SET " +
+                "dailypoints = dailypoints + " + intpoints + " " +
+                "WHERE dailysmokepoint = " + smoketime + ";";
+
+        System.out.println("SQL QUERY insertdailypoints LASSI " + sqlquery);
+        Cursor c = db.rawQuery(sqlquery, null);
+        c.moveToFirst();
+        c.close();
+
+        /*
+        String[] sqlargs={smoketime,points};
+        SQLiteDatabase dbb = myhelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(myDbHelper.DAILYSMOKEPOINT, sqlargs[0]);
+        contentValues.put(myDbHelper.DAILYPOINTS, sqlargs[1]);
+        long insert = dbb.insert(myDbHelper.TABLE_ASSIGNED, null , contentValues);
+        return insert;
+         */
     }
 
 
@@ -168,86 +211,51 @@ public class MyDbAdapter implements Serializable {
         private static final int DATABASE_Version = 1;    // Database Version
 
         //table smokepoints
-        private static final String TABLE_SMOKEPOINT = "smokepoint";   // table juvinile as in nuorisotila
-        private static final String SMOKEPOINT = "smokepoint";     // col id (Primary Key) (INTEGER PRIMARY KEY AUTOINCREMENT)
+        private static final String TABLE_SMOKEPOINT = "smokepoint";   //
+        private static final String SMOKEPOINT = "smokepoint";     //
 
-        /*
-        //table event
-        private static final String TABLE_EVENT = "event";   // table event as in tapahtuma
-        private static final String EVENTID = "eventid";   // col id (Primary Key) (INTEGER PRIMARY KEY AUTOINCREMENT)
-        private static final String EJUVINILEID = "juvinileid";   // col foreign id to location
-        private static final String EVENTNAME = "eventname";   // col foreign id to location
-        private static final String EVENTPLANNEDSTART = "plannedstart";   // col start timestamp (yyyy-mm-dd hh:mm:00) or whatever format goes nicely
-        private static final String EVENTPLANNEDEND = "plannedend";   // col start timestamp (yyyy-mm-dd hh:mm:00) or whatever format goes nicely
-        private static final String EVENTSTART = "start";   // col start timestamp default null
-        private static final String EVENTEND = "end";   // col end timestamp default null
-        private static final String MINAGE = "minage";   // col minimum age of participants int
-        private static final String MAXAGE = "maxage";   // col maximum age of participants int
-        private static final String PARTICIPANTS_COUNT = "participants";   // col number of participants int
-        private static final String ACTIVE = "active";   // col active yes/no
-        private static final String EDBTIME = "dbtime"; // col time when created timestamp
-        private static final String EDBCHANGE = "dbchange"; // col time when changed timestamp
+        //table assignedpoints
+        private static final String TABLE_ASSIGNED = "assignedpoints";   //
+        private static final String DAILYSMOKEPOINT = "dailysmokepoint";     //
+        private static final String DAILYPOINTS = "dailypoints";     //
 
-        //table feedback
-        private static final String TABLE_FEEDBACK = "feedback";   // table feedback as in palaute
-        private static final String FEEDBACKID = "feedbackid";   // col id (Primary Key)  (INTEGER PRIMARY KEY AUTOINCREMENT)
-        private static final String JEVENTID = "eventid";   // col foreign id to feedback target event
-        private static final String GRADE = "grade";   // col grade for the event int (1-5 restricted maybe)
-        private static final String FEEDBACK = "feedback";   // col for the free form feedback varchar(1000)
-        private static final String PARTICIPANT = "participant"; // col feedback giver varchar(50) default null/anonymous
-        private static final String FDBTIME = "dbtime"; // col time when created timestamp
-        private static final String FDBCHANGE = "dbchange"; // col time when changed timestamp
+        //table cumulativepoints
+        private static final String TABLE_CUMULATIVE = "cumulativepoints";   //
+        private static final String SMOKETIME = "smoketime";     //
+        private static final String CUMULATIVEPOINTS = "cumulativesmokepoints";     //
 
 
-         */
 
-        //sentences to handle table juvinile
+        //sentences to handle table smokepoint
         private static final String CREATE_TABLE_SMOKEPOINT =
                 "CREATE TABLE " + TABLE_SMOKEPOINT + " ("
                         + SMOKEPOINT + " DATETIME "
                         + ");";
 
+        //sentences to handle table assignedpoints
+        private static final String CREATE_TABLE_ASSIGNED =
+                "CREATE TABLE " + TABLE_ASSIGNED + " ("
+                        + DAILYSMOKEPOINT + " DATETIME "
+                        + DAILYPOINTS + " INTEGER "
+                        + ");";
 
-        //private static final String CREATE_INDEX_JUVINILE = "CREATE UNIQUE INDEX idx_juvinile_name ON JUVINILE (juvinileid, name);";
+        //sentences to handle table assignedpoints
+        private static final String CREATE_TABLE_CUMULATIVE =
+                "CREATE TABLE " + TABLE_CUMULATIVE + " ("
+                        + SMOKETIME + " TIME "
+                        + CUMULATIVEPOINTS + " INTEGER "
+                        + ");";
+
+
+
+        private static final String CREATE_INDEX_ASSIGNEDPOINTS = "CREATE UNIQUE INDEX idx_dailysmokepoint ON ASSIGNEDPOINTS (dailysmokepoint);";
 
         private static final String DROP_TABLE_SMOKEPOINT = "DROP TABLE IF EXISTS " + TABLE_SMOKEPOINT;
+        private static final String DROP_TABLE_ASSIGNED = "DROP TABLE IF EXISTS " + TABLE_ASSIGNED;
+        private static final String DROP_TABLE_CUMULATIVE = "DROP TABLE IF EXISTS " + TABLE_CUMULATIVE;
 
 
-        /*
-        //sentences to handle table event
-        private static final String CREATE_TABLE_EVENT =
-                "CREATE TABLE " + TABLE_EVENT + " ("
-                        + EVENTID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                        + EJUVINILEID + " INTEGER NOT NULL, "
-                        + EVENTNAME + " TEXT, "
-                        + EVENTPLANNEDSTART + " DATETIME NOT NULL, "
-                        + EVENTPLANNEDEND + " DATETIME NOT NULL, "
-                        + EVENTSTART + " DATETIME DEFAULT NULL, "
-                        + EVENTEND + " DATETIME DEFAULT NULL,"
-                        + MINAGE + " INTEGER, "
-                        + MAXAGE + " INTEGER, "
-                        + PARTICIPANTS_COUNT + " INTEGER DEFAULT 0, "
-                        + ACTIVE + " TEXT, "
-                        + EDBTIME + " DATETIME DEFAULT CURRENT_TIMESTAMP, "
-                        + EDBCHANGE + " DATETIME DEFAULT CURRENT_TIMESTAMP "
-                        + ");";
-        private static final String DROP_TABLE_EVENT = "DROP TABLE IF EXISTS " + TABLE_EVENT;
 
-        //sentences to handle table feedback
-        private static final String CREATE_TABLE_FEEDBACK =
-                "CREATE TABLE " + TABLE_FEEDBACK + " ("
-                        + FEEDBACKID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                        + JEVENTID + " INTEGER NOT NULL,"
-                        + GRADE + " INTEGER,"
-                        + FEEDBACK + " TEXT, "
-                        + PARTICIPANT + " TEXT DEFAULT 'Anonymous', "
-                        + FDBTIME + " DATETIME DEFAULT CURRENT_TIMESTAMP, "
-                        + FDBCHANGE + " DATETIME DEFAULT CURRENT_TIMESTAMP "
-                        + ");";
-        private static final String DROP_TABLE_FEEDBACK = "DROP TABLE IF EXISTS " + TABLE_FEEDBACK;
-
-
-         */
         //**************************************************************************************
         private Context context;
 
@@ -262,9 +270,9 @@ public class MyDbAdapter implements Serializable {
 
             try {
                 db.execSQL(CREATE_TABLE_SMOKEPOINT);
-                //db.execSQL(CREATE_TABLE_EVENT);
-                //db.execSQL(CREATE_TABLE_FEEDBACK);
-                //db.execSQL(CREATE_INDEX_JUVINILE);
+                db.execSQL(CREATE_TABLE_ASSIGNED);
+                db.execSQL(CREATE_TABLE_CUMULATIVE);
+                db.execSQL(CREATE_INDEX_ASSIGNEDPOINTS);
 
             } catch (Exception e) {
                 Message.message(context, "" + e);
@@ -277,8 +285,8 @@ public class MyDbAdapter implements Serializable {
             try {
                 Message.message(context, "OnUpgrade");
                 db.execSQL(DROP_TABLE_SMOKEPOINT);
-                //db.execSQL(DROP_TABLE_EVENT);
-                //db.execSQL(DROP_TABLE_FEEDBACK);
+                db.execSQL(DROP_TABLE_ASSIGNED);
+                db.execSQL(DROP_TABLE_CUMULATIVE);
                 onCreate(db);
             } catch (Exception e) {
                 Message.message(context, "" + e);
