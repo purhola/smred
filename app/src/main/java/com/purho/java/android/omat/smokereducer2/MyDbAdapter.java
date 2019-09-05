@@ -38,6 +38,7 @@ public class MyDbAdapter implements Serializable {
         myhelper = new myDbHelper(context);
     }
 
+
     //INSERT
 
     public long insertSmokePoint(String smokepoint)
@@ -52,7 +53,7 @@ public class MyDbAdapter implements Serializable {
         return insert;
     }
 
-    public long insertAssignedPoints(String smoketime,String points)
+    public void upsertAssignedPoints(String smoketime,String points)
     {
 
         /*INSERT INTO phonebook2(name,phonenumber,validDate)
@@ -70,16 +71,21 @@ public class MyDbAdapter implements Serializable {
         intpoints= Integer.parseInt(points);
 
         SQLiteDatabase db = myhelper.getWritableDatabase();
-        String sqlquery="INSERT INTO assignedpoints (dailysmokepoint,dailypoints) "+
-                "VALUES( " + smoketime +", " + points + ") " +
-                "ON CONFLICT (dailysmokepoint) DO UPDATE SET " +
-                "dailypoints = dailypoints + " + intpoints + " " +
-                "WHERE dailysmokepoint = " + smoketime + ";";
-
-        System.out.println("SQL QUERY insertdailypoints LASSI " + sqlquery);
-        Cursor c = db.rawQuery(sqlquery, null);
+        String updatequery=
+                "UPDATE assignedpoints SET dailypoints=dailypoints + " + intpoints +
+                " WHERE dailysmokepoint= '" + smoketime + "';";
+        System.out.println("SQL QUERY UPDATEdailypoints LASSI " + updatequery);
+        Cursor c = db.rawQuery(updatequery, null);
         c.moveToFirst();
         c.close();
+
+        String insertquery=
+                "INSERT OR IGNORE INTO assignedpoints (dailysmokepoint,dailypoints) "+
+                "VALUES( '" + smoketime +"', " + points + ");";
+        System.out.println("SQL QUERY INSERTdailypoints LASSI " + insertquery);
+        Cursor d = db.rawQuery(insertquery, null);
+        d.moveToFirst();
+        d.close();
 
         /*
         String[] sqlargs={smoketime,points};
@@ -208,7 +214,7 @@ public class MyDbAdapter implements Serializable {
     //table variables and DATABASE VERSION and name
     static class myDbHelper extends SQLiteOpenHelper {
         private static final String DATABASE_NAME = "playtodella1";    // Database Name
-        private static final int DATABASE_Version = 1;    // Database Version
+        private static final int DATABASE_Version = 4;    // Database Version
 
         //table smokepoints
         private static final String TABLE_SMOKEPOINT = "smokepoint";   //
@@ -235,20 +241,21 @@ public class MyDbAdapter implements Serializable {
         //sentences to handle table assignedpoints
         private static final String CREATE_TABLE_ASSIGNED =
                 "CREATE TABLE " + TABLE_ASSIGNED + " ("
-                        + DAILYSMOKEPOINT + " DATETIME "
+                        + DAILYSMOKEPOINT + " DATETIME, "
                         + DAILYPOINTS + " INTEGER "
                         + ");";
 
         //sentences to handle table assignedpoints
         private static final String CREATE_TABLE_CUMULATIVE =
                 "CREATE TABLE " + TABLE_CUMULATIVE + " ("
-                        + SMOKETIME + " TIME "
+                        + SMOKETIME + " TIME, "
                         + CUMULATIVEPOINTS + " INTEGER "
                         + ");";
 
 
 
         private static final String CREATE_INDEX_ASSIGNEDPOINTS = "CREATE UNIQUE INDEX idx_dailysmokepoint ON ASSIGNEDPOINTS (dailysmokepoint);";
+        private static final String CREATE_INDEX_CUMULATIVEPOINTS = "CREATE UNIQUE INDEX idx_smoketime ON cumulativepoints (smoketime);";
 
         private static final String DROP_TABLE_SMOKEPOINT = "DROP TABLE IF EXISTS " + TABLE_SMOKEPOINT;
         private static final String DROP_TABLE_ASSIGNED = "DROP TABLE IF EXISTS " + TABLE_ASSIGNED;

@@ -9,22 +9,24 @@ public class PointsAssigned {
     private String time;
     private String points;
 
-    public pointsAssigned() {
+    public PointsAssigned() {
         //to do, come code
 
 
         this.smoketime= LocalDateTime.now();
         this.points="0";
 
-        this.time=smoketime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        //this.time=smoketime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         //System.out.println("Smoketime: " + smoketime + " points: " + points);
     }
 
-    public pointsAssigned(LocalDateTime smoketime,String points) {
+    public PointsAssigned(LocalDateTime smoketime,String points) {
 
         this.smoketime=smoketime;
         this.points=points;
+
+        this.time=smoketime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         //System.out.println("Smoketime: " + smoketime + " points: " + points);
 
@@ -39,7 +41,7 @@ public class PointsAssigned {
     public void setSmoketime(LocalDateTime smoketime) {
 
         this.smoketime = smoketime;
-        this.time=smoketime.format(DateTimeFormatter.ofPattern("HH:mm"));
+        //this.time=smoketime.format(DateTimeFormatter.ofPattern("HH:mm"));
         //System.out.println("Smoketime: setter " + smoketime);
     }
 
