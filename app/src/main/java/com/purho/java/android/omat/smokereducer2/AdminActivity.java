@@ -12,6 +12,7 @@ import java.util.ArrayList;
 public class AdminActivity extends AppCompatActivity {
 
     private MyDbAdapter helper;
+    ArrayList<Optimizer> allowedpoints;
 
 
     @Override
@@ -19,14 +20,14 @@ public class AdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
-
+        //allowedpoints=new ArrayList<>();
         helper = new MyDbAdapter(this);
 
     }
 
 
 public void populate(View v){
-
+/*
     helper.insertSmokePoint("2019-09-04 08:01");
     helper.insertSmokePoint("2019-09-04 08:08");
     helper.insertSmokePoint("2019-09-04 09:01");
@@ -37,20 +38,12 @@ public void populate(View v){
     helper.insertSmokePoint("2019-09-04 14:01");
     helper.insertSmokePoint("2019-09-04 15:01");
     helper.insertSmokePoint("2019-09-04 16:01");
-
+*/
     //start the assignments from here too at this point. could do from db.
 
     ArrayList<String> smokepointslist = new ArrayList<>();
-    smokepointslist.add("2019-09-04 08:01");
-    smokepointslist.add("2019-09-04 08:08");
-    smokepointslist.add("2019-09-04 09:01");
-    smokepointslist.add("2019-09-04 10:01");
-    smokepointslist.add("2019-09-04 11:01");
-    smokepointslist.add("2019-09-04 12:01");
-    smokepointslist.add("2019-09-04 13:01");
-    smokepointslist.add("2019-09-04 14:01");
-    smokepointslist.add("2019-09-04 15:01");
-    smokepointslist.add("2019-09-04 16:01");
+
+    smokepointslist=helper.getSmoked();
 
     for(String smtemp:smokepointslist) {
         //SmokeExpander sme = new
@@ -109,7 +102,26 @@ public void populate(View v){
 
             helper.upsertAssignedPoints(pointed.getTime(),pointed.getPoints());
 
-            //TODO already these may overlap -> what to do -- google upsert?
+
+
+        }
+
+
+    }
+
+    public void getAllowedPoints(View v){
+
+        ScheduledRunner sr;
+        Integer paivaannos=15;
+
+        //here we might have the amount of smoketimes had the day before in order to reduce them
+        allowedpoints=helper.getPointSummedSmokingTimes();
+
+        for (Integer i=0;i< paivaannos;i++) {
+            System.out.println("time: " + allowedpoints.get(i).getStrtime() + " points: " + allowedpoints.get(i).getStrpoints());
+
+            //tehdaan ajastus
+            ScheduledRunner sr = new ScheduledRunner(allowedpoints.get(i).getStrtime());
 
         }
 

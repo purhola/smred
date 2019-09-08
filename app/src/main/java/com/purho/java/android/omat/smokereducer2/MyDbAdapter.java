@@ -31,6 +31,11 @@ public class MyDbAdapter implements Serializable {
 
     private myDbHelper myhelper;
     private Integer intpoints;
+    private String strsmoketime;
+    private String strsmokepoint;
+    private String strpoints;
+    private String strdailytimes;
+    private String strdailypoints;
 
 
     public MyDbAdapter(Context context)
@@ -100,43 +105,105 @@ public class MyDbAdapter implements Serializable {
 
 
     //SELECT
-/*
-    //lets fetch the list of JUVINILES
-    public ArrayList<Juvinile> getJuvinileList() //the select query here as string parameter?
-    {
 
-        //list for storing the results
-        ArrayList<Juvinile> juvinilesList = new ArrayList<Juvinile>();
+    //select for the saved smoking times
 
-        String selectQuery = "SELECT * FROM " + myDbHelper.TABLE_JUVINILE;
+    public ArrayList<String> getSmoked() {
+        ArrayList<String> smoked = new ArrayList<>();
+        String selectQuery = "SELECT * FROM " + myDbHelper.TABLE_SMOKEPOINT + " WHERE date(smokepoint) > date('now','-7 day') "
+                +"order by smokepoint asc";
 
         SQLiteDatabase db = myhelper.getWritableDatabase();
         Cursor c = db.rawQuery(selectQuery,null);
         //go through the whole table
         if(c.moveToFirst()) {
             do {
-                Juvinile tempjuvi = new Juvinile();
-
                 //read the db
-                juvilineid=c.getInt(c.getColumnIndex(myDbHelper.JUVINILEID));
-                name=c.getString(c.getColumnIndex(myDbHelper.JUVINILENAME));
-                location=c.getString(c.getColumnIndex(myDbHelper.CITY));
-                address=c.getString(c.getColumnIndex(myDbHelper.ADDRESS));
-
-                //Assign the values to juviline object
-                tempjuvi.setJuvinileID(juvilineid);
-                tempjuvi.setAddress(address);
-                tempjuvi.setName(name);
-                tempjuvi.setCity(location);
+                strsmokepoint= c.getString(c.getColumnIndex("smokepoint"));
 
                 //add the object to the list
-                juvinilesList.add(tempjuvi);
+                smoked.add(strsmokepoint);
             } while (c.moveToNext());
-            Log.d("array",juvinilesList.toString());
+            Log.d("array",smoked.toString());
         }
-        return juvinilesList;
+        return smoked;
+
     }
 
+
+    //lets fetch the list of point assigned smoketimes
+    //gouped by time and with points summed
+    public ArrayList<Optimizer> getPointSummedSmokingTimes() //the select query here as string parameter?
+    {
+
+        //list for storing the results
+        ArrayList<Optimizer> optimizeList = new ArrayList<Optimizer>();
+        System.out.println("at the dbadapter");
+        String selectQuery =
+                "select time(dailysmokepoint) as timepoint,sum(dailypoints) as sumpoints from assignedpoints " +
+                "where date(dailysmokepoint) > date('now','-7 day') " +
+                "group by time(dailysmokepoint) order by sum(dailypoints) desc;";
+
+        SQLiteDatabase db = myhelper.getWritableDatabase();
+        Cursor c = db.rawQuery(selectQuery,null);
+        //go through the whole table
+        if(c.moveToFirst()) {
+            do {
+                Optimizer tempOpti = new Optimizer();
+
+                //read the db
+                strsmoketime=c.getString(c.getColumnIndex("timepoint"));
+                strpoints=c.getString(c.getColumnIndex("sumpoints"));
+
+                //Assign the values to juviline object
+                tempOpti.setStrtime(strsmoketime);
+                tempOpti.setStrpoints(strpoints);
+
+                //add the object to the list
+                optimizeList.add(tempOpti);
+            } while (c.moveToNext());
+            Log.d("array",optimizeList.toString());
+        }
+
+        return optimizeList;
+    }
+
+    public ArrayList<Optimizer> getValuedSmokingTimes() //the select query here as string parameter?
+    {
+
+        //list for storing the results
+        ArrayList<Optimizer> optimizeList = new ArrayList<Optimizer>();
+
+        String selectQuery =
+                "select dailysmokepoint,dailypoints from assignedpoints " +
+                        "where date(dailysmokepoint) > date('now','-7 day') " +
+                        "order by dailysmokepoint asc;";
+
+        SQLiteDatabase db = myhelper.getWritableDatabase();
+        Cursor c = db.rawQuery(selectQuery,null);
+        //go through the whole table
+        if(c.moveToFirst()) {
+            do {
+                Optimizer tempOpti = new Optimizer();
+
+                //read the db
+                strdailytimes=c.getString(c.getColumnIndex("dailysmokepoint"));
+                strdailypoints=c.getString(c.getColumnIndex("dailypoints"));
+
+                //Assign the values to juviline object
+                tempOpti.setStrdailytimes(strdailytimes);
+                tempOpti.setStrdailypoints(strdailypoints);
+
+                //add the object to the list
+                optimizeList.add(tempOpti);
+            } while (c.moveToNext());
+            Log.d("array",optimizeList.toString());
+        }
+        return optimizeList;
+    }
+
+
+/*
     //SELECT FEEDBACKS
     public ArrayList<EventFeedBack> getEventFeedBacks(Integer eventid){
 
