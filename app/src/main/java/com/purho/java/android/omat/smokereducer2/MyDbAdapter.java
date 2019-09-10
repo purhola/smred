@@ -111,7 +111,7 @@ public class MyDbAdapter implements Serializable {
     public ArrayList<String> getSmoked() {
         ArrayList<String> smoked = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + myDbHelper.TABLE_SMOKEPOINT + " WHERE date(smokepoint) > date('now','-7 day') "
-                +"order by smokepoint asc";
+                +"order by smokepoint asc;";
 
         SQLiteDatabase db = myhelper.getWritableDatabase();
         Cursor c = db.rawQuery(selectQuery,null);
@@ -129,6 +129,27 @@ public class MyDbAdapter implements Serializable {
         return smoked;
 
     }
+
+    //select for the saved smoking times
+
+    public Integer getSmokeCount() {
+        Integer countti=0;
+        String selectQuery = "SELECT count(*) as count FROM " + myDbHelper.TABLE_SMOKEPOINT + " WHERE date(smokepoint) = date('now','-1 day');";
+
+        SQLiteDatabase db = myhelper.getWritableDatabase();
+        Cursor c = db.rawQuery(selectQuery,null);
+        //go through the whole table
+        if(c.moveToFirst()) {
+            do {
+                //read the db
+                countti= c.getInt(c.getColumnIndex("count"));
+            } while (c.moveToNext());
+            Log.d("countti",Integer.toString(countti));
+        }
+        return countti;
+
+    }
+
 
 
     //lets fetch the list of point assigned smoketimes
@@ -281,7 +302,7 @@ public class MyDbAdapter implements Serializable {
     //table variables and DATABASE VERSION and name
     static class myDbHelper extends SQLiteOpenHelper {
         private static final String DATABASE_NAME = "playtodella1";    // Database Name
-        private static final int DATABASE_Version = 4;    // Database Version
+        private static final int DATABASE_Version = 5;    // Database Version
 
         //table smokepoints
         private static final String TABLE_SMOKEPOINT = "smokepoint";   //

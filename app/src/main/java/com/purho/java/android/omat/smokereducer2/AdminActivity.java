@@ -38,21 +38,20 @@ public class AdminActivity extends AppCompatActivity {
 
 
 public void populate(View v){
-/*
-    helper.insertSmokePoint("2019-09-04 08:01");
-    helper.insertSmokePoint("2019-09-04 08:08");
-    helper.insertSmokePoint("2019-09-04 09:01");
-    helper.insertSmokePoint("2019-09-04 10:01");
-    helper.insertSmokePoint("2019-09-04 11:01");
-    helper.insertSmokePoint("2019-09-04 12:01");
-    helper.insertSmokePoint("2019-09-04 13:01");
-    helper.insertSmokePoint("2019-09-04 14:01");
-    helper.insertSmokePoint("2019-09-04 15:01");
-    helper.insertSmokePoint("2019-09-04 16:01");
-*/
+
+    helper.insertSmokePoint("2019-09-09 08:08");
+    helper.insertSmokePoint("2019-09-09 09:01");
+    helper.insertSmokePoint("2019-09-09 10:01");
+    helper.insertSmokePoint("2019-09-09 11:01");
+    helper.insertSmokePoint("2019-09-09 12:01");
+    helper.insertSmokePoint("2019-09-09 13:01");
+    helper.insertSmokePoint("2019-09-09 14:01");
+    helper.insertSmokePoint("2019-09-09 15:01");
+    helper.insertSmokePoint("2019-09-09 16:01");
+
     //start the assignments from here too at this point. could do from db.
 
-    ArrayList<String> smokepointslist = new ArrayList<>();
+/*    ArrayList<String> smokepointslist = new ArrayList<>();
 
     smokepointslist=helper.getSmoked();
 
@@ -60,7 +59,7 @@ public void populate(View v){
         //SmokeExpander sme = new
                 SmokeExpander(smtemp);
     }
-
+*/
 
 
 

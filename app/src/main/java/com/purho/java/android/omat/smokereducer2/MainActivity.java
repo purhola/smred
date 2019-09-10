@@ -29,6 +29,7 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -100,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         btnSmokeNow = (Button) findViewById(R.id.btnSmokeNow);
-        btnSmokeOnTime = (Button) findViewById(R.id.btnSmokeOnTime);
-        btnSkipSmoke = (Button) findViewById(R.id.btnSkip);
+       // btnSmokeOnTime = (Button) findViewById(R.id.btnSmokeOnTime);
+       // btnSkipSmoke = (Button) findViewById(R.id.btnSkip);
 
         dbname = "playtodella1";
 
@@ -179,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         if (id > 0) Toast.makeText(this, "Cig saved", Toast.LENGTH_LONG).show();
 
 
-        Optimizer optimize = new Optimizer();
+        //Optimizer optimize = new Optimizer();
 
     }
 
@@ -318,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
     helper.insertSmokePoint("2019-09-04 16:01");
 */
         //start the assignments from here too at this point. could do from db.
-
+/*
         ArrayList<String> smokepointslist = new ArrayList<>();
 
         smokepointslist = helper.getSmoked();
@@ -327,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
             //SmokeExpander sme = new
             SmokeExpander(smtemp);
         }
-
+*/
 
     }
 
@@ -386,13 +387,22 @@ public class MainActivity extends AppCompatActivity {
 
     public void getAllowedPoints(View v) {
 
+        ArrayList<String> smokepointslist = new ArrayList<>();
+
+        smokepointslist = helper.getSmoked();
+
+        for (String smtemp : smokepointslist) {
+            //SmokeExpander sme = new
+            SmokeExpander(smtemp);
+        }
+
         ScheduledRunner sr;
-        Integer paivaannos = 15;
+        Integer paivaannos = helper.getSmokeCount();
 
         //here we might have the amount of smoketimes had the day before in order to reduce them
         allowedpoints = helper.getPointSummedSmokingTimes();
 
-        for (Integer i = 0; i < paivaannos; i++) {
+        for (Integer i = 0; i < paivaannos -1; i++) {
             System.out.println("time: " + allowedpoints.get(i).getStrtime() + " points: " + allowedpoints.get(i).getStrpoints());
 
             //tehdaan ajastus jokaisesta
@@ -409,6 +419,7 @@ public class MainActivity extends AppCompatActivity {
         String paiva = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + " " + smokeAllowed;
         System.out.println("KULUVAA PÄIVÄÄ TUNTIA: " + paiva);
 
+        //TÄÄ TOIMII; ÄLÄ RIKO
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = null;
         try {
@@ -416,6 +427,15 @@ public class MainActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+
+       /* DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = null;
+        try {
+            date = ((SimpleDateFormat) dateFormatter).parse("2019-09-08 20:30:00");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }*/
 
         //Now create the time and schedule it
         Timer timer = new Timer();
@@ -437,6 +457,10 @@ public class MainActivity extends AppCompatActivity {
 
         public void run() {
 
+        //create the intent after the notification
+            Intent intent = new Intent(MainActivity.this,SmokeAllowed.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this,0, intent, 0);
 
 
         //TÄSTÄ notifikaatio liikkeelle
@@ -445,7 +469,7 @@ public class MainActivity extends AppCompatActivity {
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             CharSequence name = "Channel name";
             String description = "Channel Description";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
+            int importance = NotificationManager.IMPORTANCE_HIGH;  //could be IMPORTANCE_DEFAULT
             NotificationChannel notificationChannel = new NotificationChannel(id, name, importance);
             notificationChannel.setDescription(description);
             notificationChannel.enableLights(true);
@@ -464,6 +488,9 @@ public class MainActivity extends AppCompatActivity {
         notificationBuilder.setLights(Color.WHITE, 500, 5000);
         notificationBuilder.setColor(Color.RED);
         notificationBuilder.setDefaults(Notification.DEFAULT_SOUND);
+        //here we should set the intent and clearing the notification
+            notificationBuilder.setContentIntent(pendingIntent);
+            notificationBuilder.setAutoCancel(true);
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(MainActivity.this);
         notificationManagerCompat.notify(1000, notificationBuilder.build());
 
