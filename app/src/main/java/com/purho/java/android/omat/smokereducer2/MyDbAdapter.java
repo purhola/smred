@@ -61,17 +61,7 @@ public class MyDbAdapter implements Serializable {
     public void upsertAssignedPoints(String smoketime,String points)
     {
 
-        /*INSERT INTO phonebook2(name,phonenumber,validDate)
-        VALUES('Alice','704-555-1212','2018-05-08')
-        ON CONFLICT(name) DO UPDATE SET
-        phonenumber=excluded.phonenumber,
-                validDate=excluded.validDate
-        WHERE excluded.validDate>phonebook2.validDate;
-        */
 
-        //private static final String TABLE_ASSIGNED = "assignedpoints";   //
-        //private static final String DAILYSMOKEPOINT = "dailysmokepoint";     //
-        //private static final String DAILYPOINTS = "dailypoints";
         intpoints=0;
         intpoints= Integer.parseInt(points);
 
@@ -92,16 +82,7 @@ public class MyDbAdapter implements Serializable {
         d.moveToFirst();
         d.close();
 
-        /*
-        String[] sqlargs={smoketime,points};
-        SQLiteDatabase dbb = myhelper.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(myDbHelper.DAILYSMOKEPOINT, sqlargs[0]);
-        contentValues.put(myDbHelper.DAILYPOINTS, sqlargs[1]);
-        long insert = dbb.insert(myDbHelper.TABLE_ASSIGNED, null , contentValues);
-        return insert;
-         */
-    }
+            }
 
     public void insertCumulativePoints() {
         //SQL:  insert into cumulativepoints(smoketime,cumulativesmokepoints) select time(dailysmokepoint) as timepoint,sum(dailypoints) as sumpoints from assignedpoints where date(dailysmokepoint) > date('now','-8 days') and date(dailysmokepoint) < date('now') group by time(dailysmokepoint) order by sum(dailypoints) desc;
@@ -173,9 +154,9 @@ public class MyDbAdapter implements Serializable {
         ArrayList<Optimizer> optimizeList = new ArrayList<Optimizer>();
         System.out.println("at the dbadapter");
         String selectQuery =
-                "select time((strftime('%s',smoketime) / 700)*700,'unixepoch') interval, " +
-                "avg(cumulativesmokepoints) as avgpoints from cumulativepoints " +
-                "group by interval order by avg(cumulativesmokepoints) desc;";
+                "select time(smoketime) interval, " +
+                "cumulativesmokepoints as avgpoints from cumulativepoints " +
+                "group by interval order by cumulativesmokepoints desc;";
 
         SQLiteDatabase db = myhelper.getWritableDatabase();
         Cursor c = db.rawQuery(selectQuery,null);

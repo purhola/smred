@@ -24,7 +24,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         mContext=arg0;
 
         //do something, i.e.smokeallowed
-        System.out.println("joku häly pitäis puskea eiku jotain pitäis käynnistää VANHAA");
+        System.out.println("joku häly pitäis puskea eiku jotain pitäis käynnistää");
         //create the intent after the notification
 
       //  Intent intent = new Intent(MainActivity.this, NotificationX.class);

@@ -104,18 +104,12 @@ public class MainActivity extends AppCompatActivity {
 
         helper = new MyDbAdapter(this);
 
-        //Intent alarmIntent = new Intent(this,AlarmReceiver.class);
-       // pendingIntent=PendingIntent.getBroadcast(this,0,alarmIntent, 0);
-
 
         btnSmokeNow = (Button) findViewById(R.id.btnSmokeNow);
-       // btnSmokeOnTime = (Button) findViewById(R.id.btnSmokeOnTime);
-       // btnSkipSmoke = (Button) findViewById(R.id.btnSkip);
 
         dbname = "playtodella1";
 
 
-        //oma scheduled runner, että kerran vuorokaudessa käynnistetään koko fukin' rimpsu
 
 
         if (ContextCompat.checkSelfPermission(MainActivity.this,
@@ -136,30 +130,19 @@ public class MainActivity extends AppCompatActivity {
 
         //System.out.println("pitäis kirjoitella kantaan " );
 
-
         String smoketime = getCurrentLocalDateTimeStamp();
-        System.out.println("mitähän  " + smoketime);
+//        System.out.println("mitähän  " + smoketime);
         long id = 0;
-
 
         id = helper.insertSmokePoint(smoketime);
         if (id > 0) Toast.makeText(this, "Cig saved", Toast.LENGTH_LONG).show();
 
 
-        //Optimizer optimize = new Optimizer();
-
     }
 
-    public void insertAllowedSmoke(View v) {
 
 
-    }
-
-    public void skipSmoke(View v) {
-
-
-    }
-
+    //dbg
     public void adminAct(View v) {
 
         Intent intent = new Intent(this, AdminActivity.class);
@@ -172,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
     }
 
-
+        //to get the db onto ext memory  -dbg
     public void exportDatabase(String databaseName) {
 
         Integer card = 0;
@@ -211,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                     FileChannel src = new FileInputStream(currentDB).getChannel();
                     FileChannel dst = new FileOutputStream(backupDB).getChannel();
                     dst.transferFrom(src, 0, src.size());
-                    //System.out.println("TONNE PITI MENNÄ TONNE PITI MENNÄ TONNE PITI MENNÄ : "+ "SOURCE: " + src + " " + currentDB +  " DEST: "+ dst + " " + backupDB);
+                    //System.out.println("SOURCE: " + src + " " + currentDB +  " DEST: "+ dst + " " + backupDB);
                     src.close();
                     dst.close();
                 }
@@ -271,51 +254,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void populate(View v) {  //tää on vaan nyt tyhmä nimi, vois olla getpoints tms
-
-    //helper.insertSmokePoint("2019-09-10 08:01");
-    //helper.insertSmokePoint("2019-09-10 08:08");
-    //helper.insertSmokePoint("2019-09-10 09:01");
-    //helper.insertSmokePoint("2019-09-10 10:01");
-    //helper.insertSmokePoint("2019-09-10 11:01");
-    //helper.insertSmokePoint("2019-09-10 12:01");
-    helper.insertSmokePoint("2019-09-12 06:10");
-    helper.insertSmokePoint("2019-09-12 07:12");
-    helper.insertSmokePoint("2019-09-12 08:05");
-    helper.insertSmokePoint("2019-09-12 09:09");
-    helper.insertSmokePoint("2019-09-12 10:01");
-    helper.insertSmokePoint("2019-09-12 11:36");
-    helper.insertSmokePoint("2019-09-12 12:01");
-    helper.insertSmokePoint("2019-09-12 12:31");
-    helper.insertSmokePoint("2019-09-12 13:39");
-    helper.insertSmokePoint("2019-09-12 14:01");
-    helper.insertSmokePoint("2019-09-12 15:16");
-    helper.insertSmokePoint("2019-09-12 15:41");
-    helper.insertSmokePoint("2019-09-12 16:01");
-    //    helper.insertSmokePoint("2019-09-11 16:05");
-    //    helper.insertSmokePoint("2019-09-11 16:11");
-    //    helper.insertSmokePoint("2019-09-11 16:41");
-    //    helper.insertSmokePoint("2019-09-11 16:51");
-    //    helper.insertSmokePoint("2019-09-11 17:01");
-    //    helper.insertSmokePoint("2019-09-11 18:01");
-    //    helper.insertSmokePoint("2019-09-11 19:01");
-    //    helper.insertSmokePoint("2019-09-11 20:11");
-
-        //start the assignments from here too at this point. could do from db.
-/*
-        ArrayList<String> smokepointslist = new ArrayList<>();
-
-        smokepointslist = helper.getSmoked();
-
-        for (String smtemp : smokepointslist) {
-            //SmokeExpander sme = new
-            SmokeExpander(smtemp);
-        }
-*/
-
-    }
-
-
     public void SmokeExpander(String smoketime) {
 
 
@@ -339,15 +277,6 @@ public class MainActivity extends AppCompatActivity {
             int n = 100 - i;
             PointsAssigned pplus = new PointsAssigned(realSmokeTime.plusMinutes(i), Integer.toString(100 - i));
             PointsAssigned pminus = new PointsAssigned(realSmokeTime.minusMinutes(i), Integer.toString(100 - 2 * i));
-
-            //rsplus=realSmokeTime.plusMinutes(i);
-            //rsminus=realSmokeTime.minusMinutes(i);
-
-            //pointstemp=Integer.toString(n);
-            //pplus.setSmoketime(rsplus);
-            //pplus.setPoints(pointstemp);
-            //pminus.setSmoketime(rsminus);
-            //pminus.setPoints(pointstemp);
 
             listSmokes.add(pplus);
             listSmokes.add(pminus);
@@ -390,13 +319,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         for (String smtemp : smokepointslist) {
-            //SmokeExpander sme = new
-            SmokeExpander(smtemp); //TODO UNCOMMENT
+
+            SmokeExpander(smtemp);
         }
 
         ArrayList<PendingIntent> intentArray;
 
-        //ScheduledRunner sr;
+
         //here we have the amount of smoketimes had the day before in order to reduce them
         Integer paivaannos = helper.getSmokeCount();
        // System.out.println("PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS " + paivaannos);
@@ -414,8 +343,8 @@ public class MainActivity extends AppCompatActivity {
 
         if(allowedpoints.size()-1<paivaannos) rajoitin=allowedpoints.size()-1;
 
-
-        for (Integer i = 1; i < rajoitin; i++) {
+        //some logic
+        for (Integer i = 0; i < rajoitin; i++) {
 
 
             AlarmManager[] alarmManager=new AlarmManager[rajoitin];
@@ -426,12 +355,10 @@ public class MainActivity extends AppCompatActivity {
 
             //*********************************************************************************************************
 
-            //tehdaan ajastus jokaisesta
-            //ScheduledRunner(allowedpoints.get(i).getStrtime());
 
             //tehdaan sellainen ajastus, etta toimii vaikka appi ei ole kaynnissa.
             //AlarmRunner(allowedpoints.get(i).getStrtime());
-            //TODO muutetaan niin ettei tee millisekunteja vaan kalenterin
+
 
             String timme = allowedpoints.get(i).getStrtime();
             String[] time = timme.split ( ":" );
@@ -446,22 +373,6 @@ public class MainActivity extends AppCompatActivity {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
             calendar.set(Calendar.MINUTE, min);
 
-/*
-            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime nyty = LocalDateTime.now(); //.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            System.out.println("NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY " + nyty);
-            String paivahetki = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + " " + allowedpoints.get(i).getStrtime() ;
-            LocalDateTime realTargetTime = LocalDateTime.parse(paivahetki, df);
-            Duration kesto = Duration.between(nyty,realTargetTime);
-            long lngmstrig= kesto.toMillis();
-            System.out.println("hälyjä tulossa millisekunteina: " + lngmstrig);
-
-
- */
-
-
-
-
 
             Intent alarmIntent = new Intent(this,AlarmReceiver.class);
             pendingIntent=PendingIntent.getBroadcast(this,i,alarmIntent, 0);
@@ -475,6 +386,52 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //dbg
+    public void populate(View v) {
+
+        //helper.insertSmokePoint("2019-09-10 08:01");
+        //helper.insertSmokePoint("2019-09-10 08:08");
+        //helper.insertSmokePoint("2019-09-10 09:01");
+        //helper.insertSmokePoint("2019-09-10 10:01");
+        //helper.insertSmokePoint("2019-09-10 11:01");
+        //helper.insertSmokePoint("2019-09-10 12:01");
+        helper.insertSmokePoint("2019-09-12 06:10");
+        helper.insertSmokePoint("2019-09-12 07:12");
+        helper.insertSmokePoint("2019-09-12 08:05");
+        helper.insertSmokePoint("2019-09-12 09:09");
+        helper.insertSmokePoint("2019-09-12 10:01");
+        helper.insertSmokePoint("2019-09-12 11:36");
+        helper.insertSmokePoint("2019-09-12 12:01");
+        helper.insertSmokePoint("2019-09-12 12:31");
+        helper.insertSmokePoint("2019-09-12 13:39");
+        helper.insertSmokePoint("2019-09-12 14:01");
+        helper.insertSmokePoint("2019-09-12 15:16");
+        helper.insertSmokePoint("2019-09-12 15:41");
+        helper.insertSmokePoint("2019-09-12 16:01");
+        //    helper.insertSmokePoint("2019-09-11 16:05");
+        //    helper.insertSmokePoint("2019-09-11 16:11");
+        //    helper.insertSmokePoint("2019-09-11 16:41");
+        //    helper.insertSmokePoint("2019-09-11 16:51");
+        //    helper.insertSmokePoint("2019-09-11 17:01");
+        //    helper.insertSmokePoint("2019-09-11 18:01");
+        //    helper.insertSmokePoint("2019-09-11 19:01");
+        //    helper.insertSmokePoint("2019-09-11 20:11");
+
+        //start the assignments from here too at this point. could do from db.
+/*
+        ArrayList<String> smokepointslist = new ArrayList<>();
+
+        smokepointslist = helper.getSmoked();
+
+        for (String smtemp : smokepointslist) {
+            //SmokeExpander sme = new
+            SmokeExpander(smtemp);
+        }
+*/
+
+    }
+
+    //dbg
     public void lataaPiste(View v) {
 
 
@@ -500,125 +457,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-    /*
-    public void AlarmRunner(String targtime) {
-        manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        //int interval = 10000; //tää pois, ampuu 10sek välein hälyn
-
-        // need to get now, convert the timet to timestamp and calculate millis from that
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-
-        LocalDateTime nyty = LocalDateTime.now(); //.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-        //System.out.println("NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY " + nyty);
-
-        String paivahetki = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + " " + targtime;
-        LocalDateTime realTargetTime = LocalDateTime.parse(paivahetki, df);
-
-        Duration kesto = Duration.between(nyty,realTargetTime);
-
-        long lngmstrig= kesto.toMillis();
-        System.out.println("hälyjä tulossa millisekunteina: " + lngmstrig);
-
-
-
-        //manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
-        manager.setExact(AlarmManager.RTC_WAKEUP,lngmstrig,pendingIntent);
-
-
-
-
-        System.out.println("Alarm Set at " + targtime + " + " + lngmstrig + " millisekuntia");
-        Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
-    }
-
-
-     */
-/*
-    public void ScheduledRunner(String smokeAllowed) {
-        //the Date and time at which you want to execute
-
-        String paiva = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + " " + smokeAllowed;
-        System.out.println("KULUVAA PÄIVÄÄ TUNTIA: " + paiva);
-
-        //TÄÄ TOIMII; ÄLÄ RIKO
-        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = null;
-        try {
-            date = ((SimpleDateFormat) dateFormatter).parse(paiva);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-
-        //Now create the time and schedule it
-        Timer timer = new Timer();
-
-        //Use this if you want to execute it once
-
-
-        timer.schedule(new MyTimeTask(), date);
-
-        //Use this if you want to execute it repeatedly
-        //int period = 10000;//10secs
-        //timer.schedule(new MyTimeTask(), date, period );
-
-    }
-
- */
-
-/*
-    //The task which you want to execute
-    private class MyTimeTask extends TimerTask {
-
-        public void run() {
-
-        //create the intent after the notification
-            Intent intent = new Intent(MainActivity.this,SmokeAllowed.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this,0, intent, 0);
-
-
-        //TÄSTÄ notifikaatio liikkeelle
-        String id = "main_channel";
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            CharSequence name = "Channel name";
-            String description = "Channel Description";
-            int importance = NotificationManager.IMPORTANCE_HIGH;  //could be IMPORTANCE_DEFAULT
-            NotificationChannel notificationChannel = new NotificationChannel(id, name, importance);
-            notificationChannel.setDescription(description);
-            notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(Color.WHITE);
-            notificationChannel.enableVibration(false);
-            if (notificationChannel != null) {
-                notificationManager.createNotificationChannel((notificationChannel));
-            }
-        }
-
-        //notification
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(MainActivity.this,id);     //Context.NOTIFICATION_SERVICE, id);
-        notificationBuilder.setSmallIcon(R.mipmap.ic_launcher);
-        notificationBuilder.setContentTitle("Smoke");
-        notificationBuilder.setContentText("Now");
-        notificationBuilder.setLights(Color.WHITE, 500, 5000);
-        notificationBuilder.setColor(Color.RED);
-        notificationBuilder.setDefaults(Notification.DEFAULT_SOUND);
-        //here we should set the intent and clearing the notification
-            notificationBuilder.setContentIntent(pendingIntent);
-            notificationBuilder.setAutoCancel(true);
-        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(MainActivity.this);
-        notificationManagerCompat.notify(1000, notificationBuilder.build());
-
-        }
-    }
-
-
- */
-
+    //dbg
     public void cleanSmokePoint(View v) {
 
         Integer ok =helper.adminCleanSmokePoints();
