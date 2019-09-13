@@ -333,19 +333,20 @@ public class MyDbAdapter implements Serializable {
 */
     public int cleanAssignedPoints() {
         SQLiteDatabase db = myhelper.getWritableDatabase();
-        int count =db.delete(myDbHelper.TABLE_ASSIGNED,null);
+        int count =db.delete(myDbHelper.TABLE_ASSIGNED,null,null);
         return  count;
     }
 
     public int cleanCumulativepoints() {
         SQLiteDatabase db = myhelper.getWritableDatabase();
-        int count =db.delete(myDbHelper.TABLE_CUMULATIVE,null);
+        int count =db.delete(myDbHelper.TABLE_CUMULATIVE,null,null);
         return  count;
     }
 
     public int adminCleanSmokePoints () {
         SQLiteDatabase db = myhelper.getWritableDatabase();
-        int count =db.delete(myDbHelper.TABLE_SMOKEPOINT,myDbHelper.SMOKEPOINT + "< '2019-09-09 00:00:00'");
+        String rajaus[]={"2019-09-09 00:00:00"};
+        int count =db.delete(myDbHelper.TABLE_SMOKEPOINT,myDbHelper.SMOKEPOINT + "< ?",rajaus);
         return  count;
 
 

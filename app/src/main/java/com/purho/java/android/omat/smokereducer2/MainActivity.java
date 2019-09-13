@@ -404,6 +404,8 @@ public class MainActivity extends AppCompatActivity {
 
         //allowedpoints = helper.getPointSummedSmokingTimes();
 
+        helper.insertCumulativePoints();
+
         allowedpoints=helper.selectAllowedSmokeTimes();
 
         //if for some reason last day's count would be smaller than the count of pointed times
