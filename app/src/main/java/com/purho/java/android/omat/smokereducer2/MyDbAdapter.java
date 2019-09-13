@@ -54,7 +54,7 @@ public class MyDbAdapter implements Serializable {
         contentValues.put(myDbHelper.SMOKEPOINT, sqlargs[0]);
 
         long insert = dbb.insert(myDbHelper.TABLE_SMOKEPOINT, null , contentValues);
-
+        dbb.close();
         return insert;
     }
 
@@ -103,6 +103,21 @@ public class MyDbAdapter implements Serializable {
          */
     }
 
+    public void insertCumulativePoints() {
+        //SQL:  insert into cumulativepoints(smoketime,cumulativesmokepoints) select time(dailysmokepoint) as timepoint,sum(dailypoints) as sumpoints from assignedpoints where date(dailysmokepoint) > date('now','-8 days') and date(dailysmokepoint) < date('now') group by time(dailysmokepoint) order by sum(dailypoints) desc;
+        SQLiteDatabase db = myhelper.getWritableDatabase();
+        String insertquery=
+                "insert into cumulativepoints(smoketime,cumulativesmokepoints) " +
+                "select time(dailysmokepoint) as timepoint,sum(dailypoints) as sumpoints " +
+                "from assignedpoints where date(dailysmokepoint) > date('now','-8 days') and " +
+                "date(dailysmokepoint) < date('now') " +
+                "group by time(dailysmokepoint);";
+        System.out.println("SQL QUERY insert CUMULATIVEPOINTS LASSI " + insertquery);
+        Cursor c = db.rawQuery(insertquery, null);
+        c.moveToFirst();
+        c.close();
+    }
+
 
     //SELECT
 
@@ -126,6 +141,7 @@ public class MyDbAdapter implements Serializable {
             } while (c.moveToNext());
             Log.d("array",smoked.toString());
         }
+        c.close();
         return smoked;
 
     }
@@ -146,11 +162,45 @@ public class MyDbAdapter implements Serializable {
             } while (c.moveToNext());
             Log.d("countti",Integer.toString(countti));
         }
+        c.close();
         return countti;
 
     }
 
+    public ArrayList<Optimizer> selectAllowedSmokeTimes() {
+        //SQL: select time((strftime('%s',smoketime) / 700)*700,'unixepoch') interval,avg(cumulativesmokepoints) from cumulativepoints group by interval order by avg(cumulativesmokepoints) desc;
+        //list for storing the results
+        ArrayList<Optimizer> optimizeList = new ArrayList<Optimizer>();
+        System.out.println("at the dbadapter");
+        String selectQuery =
+                "select time((strftime('%s',smoketime) / 700)*700,'unixepoch') interval, " +
+                "avg(cumulativesmokepoints) as avgpoints from cumulativepoints " +
+                "group by interval order by avg(cumulativesmokepoints) desc;";
 
+        SQLiteDatabase db = myhelper.getWritableDatabase();
+        Cursor c = db.rawQuery(selectQuery,null);
+        //go through the whole table
+        if(c.moveToFirst()) {
+            do {
+                Optimizer tempOpti = new Optimizer();
+
+                //read the db
+                strsmoketime=c.getString(c.getColumnIndex("interval"));
+                strpoints=c.getString(c.getColumnIndex("avgpoints"));
+
+                //Assign the values to juviline object
+                tempOpti.setStrtime(strsmoketime);
+                tempOpti.setStrpoints(strpoints);
+
+                //add the object to the list
+                optimizeList.add(tempOpti);
+            } while (c.moveToNext());
+            Log.d("array",optimizeList.toString());
+        }
+
+        return optimizeList;
+
+    }
 
     //lets fetch the list of point assigned smoketimes
     //gouped by time and with points summed
@@ -163,6 +213,7 @@ public class MyDbAdapter implements Serializable {
         String selectQuery =
                 "select time(dailysmokepoint) as timepoint,sum(dailypoints) as sumpoints from assignedpoints " +
                 "where date(dailysmokepoint) > date('now','-7 day') " +
+                "and date(dailysmokepoint) < date('now') " +
                 "group by time(dailysmokepoint) order by sum(dailypoints) desc;";
 
         SQLiteDatabase db = myhelper.getWritableDatabase();
@@ -279,10 +330,31 @@ public class MyDbAdapter implements Serializable {
         int count =db.delete(myDbHelper.TABLE_JUVINILE ,myDbHelper.JUVINILEID + " = ?", ID);
         return  count;
     }
+*/
+    public int cleanAssignedPoints() {
+        SQLiteDatabase db = myhelper.getWritableDatabase();
+        int count =db.delete(myDbHelper.TABLE_ASSIGNED,null);
+        return  count;
+    }
+
+    public int cleanCumulativepoints() {
+        SQLiteDatabase db = myhelper.getWritableDatabase();
+        int count =db.delete(myDbHelper.TABLE_CUMULATIVE,null);
+        return  count;
+    }
+
+    public int adminCleanSmokePoints () {
+        SQLiteDatabase db = myhelper.getWritableDatabase();
+        int count =db.delete(myDbHelper.TABLE_SMOKEPOINT,myDbHelper.SMOKEPOINT + "< '2019-09-09 00:00:00'");
+        return  count;
+
+
+    }
+
 
     //UPDATE
 
-
+/*
 
     //update Juvinile data
     public void updateJuvinileDetails(Integer juvinileid,String column,String new_value)
@@ -301,8 +373,8 @@ public class MyDbAdapter implements Serializable {
 
     //table variables and DATABASE VERSION and name
     static class myDbHelper extends SQLiteOpenHelper {
-        private static final String DATABASE_NAME = "playtodella1";    // Database Name
-        private static final int DATABASE_Version = 5;    // Database Version
+        private static final String DATABASE_NAME = "playtodella1";    // Database Name //TODO OLI playtodella1
+        private static final int DATABASE_Version = 5;    // Database Version  //TODO OLI  5 PALAUTA
 
         //table smokepoints
         private static final String TABLE_SMOKEPOINT = "smokepoint";   //
@@ -361,25 +433,18 @@ public class MyDbAdapter implements Serializable {
 
         public void onCreate(SQLiteDatabase db) {
 
+            try {db.execSQL(CREATE_TABLE_SMOKEPOINT);} catch (Exception e) {Message.message(context, "" + e);}
+            try {db.execSQL(CREATE_TABLE_ASSIGNED);} catch (Exception e2) {Message.message(context, "" + e2);}
+            try {db.execSQL(CREATE_TABLE_CUMULATIVE);} catch (Exception e3) {Message.message(context, "" + e3);}
+            try {db.execSQL(CREATE_INDEX_ASSIGNEDPOINTS);} catch (Exception e4) {Message.message(context, "" + e4);}
 
-
-            try {
-                db.execSQL(CREATE_TABLE_SMOKEPOINT);
-                db.execSQL(CREATE_TABLE_ASSIGNED);
-                db.execSQL(CREATE_TABLE_CUMULATIVE);
-                db.execSQL(CREATE_INDEX_ASSIGNEDPOINTS);
-
-            } catch (Exception e) {
-                Message.message(context, "" + e);
-
-            }
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             try {
                 Message.message(context, "OnUpgrade");
-                db.execSQL(DROP_TABLE_SMOKEPOINT);
+              //  db.execSQL(DROP_TABLE_SMOKEPOINT);
                 db.execSQL(DROP_TABLE_ASSIGNED);
                 db.execSQL(DROP_TABLE_CUMULATIVE);
                 onCreate(db);

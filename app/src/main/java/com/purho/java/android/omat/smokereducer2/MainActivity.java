@@ -26,10 +26,12 @@ calculate the minutes getting most points
 import android.Manifest;
 import android.annotation.TargetApi;
 //import android.app.AlertDialog;
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -67,10 +69,12 @@ import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -89,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
     Button btnSkipSmoke;
     String dbname;
     ArrayList<Optimizer> allowedpoints;
-
+    private PendingIntent pendingIntent;
+    private AlarmManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         helper = new MyDbAdapter(this);
+
+        //Intent alarmIntent = new Intent(this,AlarmReceiver.class);
+       // pendingIntent=PendingIntent.getBroadcast(this,0,alarmIntent, 0);
 
 
         btnSmokeNow = (Button) findViewById(R.id.btnSmokeNow);
@@ -122,48 +130,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //exportDatabase(dbname);
-
-
-    //THIS below WORKS!! Use where needed!
-    //showNotification();
-
-
-    //SCHEDULERI
-    public void ScheduledRunnerNightRun(String smokeAllowed) {
-        //the Date and time at which you want to execute
-        //    DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        //   Date date = ((SimpleDateFormat) dateFormatter).parse("2012-07-06 13:05:45");
-
-        //TODO kuluva tai seuraava päivä -ja smokeallowedhan on tuntimuodossa.
-        //tehdäänkö tämä joka päiväksi erikseen vai mitä häh?
-
-
-        //Now create the time and schedule it
-        Timer timer = new Timer();
-
-        //Use this if you want to execute it once
-        //   timer.schedule(new MyTimeTask(), date);
-
-        //Use this if you want to execute it repeatedly
-        //int period = 10000;//10secs
-        //timer.schedule(new MyTimeTask(), date, period );
-
-    }
-
-   /* //The task which you want to execute
-    private static class MyTimeTask extends TimerTask
-    {
-
-        public void run()
-        {
-
-            //TÄSTÄ KOKO RIMPSU LIIKKEELLE
-
-
-        }
-    }
-*/
 
 
     public void insertSmoke(View v) {
@@ -172,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         String smoketime = getCurrentLocalDateTimeStamp();
-        //System.out.println("mitähän  " + smoketime);
+        System.out.println("mitähän  " + smoketime);
         long id = 0;
 
 
@@ -295,29 +261,46 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == STORAGE_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission GRANTED", Toast.LENGTH_LONG).show();
-                System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX LUPA SAATU");
+                //System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX LUPA SAATU");
                 exportDatabase(dbname);
             } else {
                 Toast.makeText(this, "Permission DENIED", Toast.LENGTH_LONG).show();
-                System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX EI SAATU LUPAA");
+                //System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX EI SAATU LUPAA");
             }
         }
     }
 
 
     public void populate(View v) {  //tää on vaan nyt tyhmä nimi, vois olla getpoints tms
-/*
-    helper.insertSmokePoint("2019-09-04 08:01");
-    helper.insertSmokePoint("2019-09-04 08:08");
-    helper.insertSmokePoint("2019-09-04 09:01");
-    helper.insertSmokePoint("2019-09-04 10:01");
-    helper.insertSmokePoint("2019-09-04 11:01");
-    helper.insertSmokePoint("2019-09-04 12:01");
-    helper.insertSmokePoint("2019-09-04 13:01");
-    helper.insertSmokePoint("2019-09-04 14:01");
-    helper.insertSmokePoint("2019-09-04 15:01");
-    helper.insertSmokePoint("2019-09-04 16:01");
-*/
+
+    //helper.insertSmokePoint("2019-09-10 08:01");
+    //helper.insertSmokePoint("2019-09-10 08:08");
+    //helper.insertSmokePoint("2019-09-10 09:01");
+    //helper.insertSmokePoint("2019-09-10 10:01");
+    //helper.insertSmokePoint("2019-09-10 11:01");
+    //helper.insertSmokePoint("2019-09-10 12:01");
+    helper.insertSmokePoint("2019-09-12 06:10");
+    helper.insertSmokePoint("2019-09-12 07:12");
+    helper.insertSmokePoint("2019-09-12 08:05");
+    helper.insertSmokePoint("2019-09-12 09:09");
+    helper.insertSmokePoint("2019-09-12 10:01");
+    helper.insertSmokePoint("2019-09-12 11:36");
+    helper.insertSmokePoint("2019-09-12 12:01");
+    helper.insertSmokePoint("2019-09-12 12:31");
+    helper.insertSmokePoint("2019-09-12 13:39");
+    helper.insertSmokePoint("2019-09-12 14:01");
+    helper.insertSmokePoint("2019-09-12 15:16");
+    helper.insertSmokePoint("2019-09-12 15:41");
+    helper.insertSmokePoint("2019-09-12 16:01");
+    //    helper.insertSmokePoint("2019-09-11 16:05");
+    //    helper.insertSmokePoint("2019-09-11 16:11");
+    //    helper.insertSmokePoint("2019-09-11 16:41");
+    //    helper.insertSmokePoint("2019-09-11 16:51");
+    //    helper.insertSmokePoint("2019-09-11 17:01");
+    //    helper.insertSmokePoint("2019-09-11 18:01");
+    //    helper.insertSmokePoint("2019-09-11 19:01");
+    //    helper.insertSmokePoint("2019-09-11 20:11");
+
         //start the assignments from here too at this point. could do from db.
 /*
         ArrayList<String> smokepointslist = new ArrayList<>();
@@ -387,32 +370,172 @@ public class MainActivity extends AppCompatActivity {
 
     public void getAllowedPoints(View v) {
 
+
+
         ArrayList<String> smokepointslist = new ArrayList<>();
 
+
+        //siivotaan pisteytetyt ja kumulatiiviset
+
+        int ap=helper.cleanAssignedPoints();
+        int cp=helper.cleanCumulativepoints();
+
+        if (ap>0 && cp >0)
+            Toast.makeText(this, "Calculated data cleaned", Toast.LENGTH_SHORT).show();
+        else Toast.makeText(this, "Calculated data NOT cleaned", Toast.LENGTH_SHORT).show();
+
+        //haetaan poltetut
         smokepointslist = helper.getSmoked();
+
+
 
         for (String smtemp : smokepointslist) {
             //SmokeExpander sme = new
-            SmokeExpander(smtemp);
+            SmokeExpander(smtemp); //TODO UNCOMMENT
         }
 
-        ScheduledRunner sr;
+        ArrayList<PendingIntent> intentArray;
+
+        //ScheduledRunner sr;
+        //here we have the amount of smoketimes had the day before in order to reduce them
         Integer paivaannos = helper.getSmokeCount();
+       // System.out.println("PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS PÄIVÄANNOS " + paivaannos);
 
-        //here we might have the amount of smoketimes had the day before in order to reduce them
-        allowedpoints = helper.getPointSummedSmokingTimes();
 
-        for (Integer i = 0; i < paivaannos -1; i++) {
+        //allowedpoints = helper.getPointSummedSmokingTimes();
+
+        allowedpoints=helper.selectAllowedSmokeTimes();
+
+        //if for some reason last day's count would be smaller than the count of pointed times
+        //so we don't run over array limits
+        Integer rajoitin = paivaannos;
+
+        if(allowedpoints.size()-1<paivaannos) rajoitin=allowedpoints.size()-1;
+
+
+        for (Integer i = 1; i < rajoitin; i++) {
+
+
+            AlarmManager[] alarmManager=new AlarmManager[rajoitin];
+            intentArray = new ArrayList<PendingIntent>();
+
+          //  System.out.println("*********************************************************************************************************");
             System.out.println("time: " + allowedpoints.get(i).getStrtime() + " points: " + allowedpoints.get(i).getStrpoints());
 
-            //tehdaan ajastus jokaisesta
-            ScheduledRunner(allowedpoints.get(i).getStrtime());
+            //*********************************************************************************************************
 
+            //tehdaan ajastus jokaisesta
+            //ScheduledRunner(allowedpoints.get(i).getStrtime());
+
+            //tehdaan sellainen ajastus, etta toimii vaikka appi ei ole kaynnissa.
+            //AlarmRunner(allowedpoints.get(i).getStrtime());
+            //TODO muutetaan niin ettei tee millisekunteja vaan kalenterin
+
+            String timme = allowedpoints.get(i).getStrtime();
+            String[] time = timme.split ( ":" );
+            int hour = Integer.parseInt ( time[0].trim() );
+            int min = Integer.parseInt ( time[1].trim() );
+
+            System.out.println("HÄLYT HÄLYT HÄLYT " + hour + ":" + min);
+
+            Calendar calendar = Calendar.getInstance();
+
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.MINUTE, min);
+
+/*
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime nyty = LocalDateTime.now(); //.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            System.out.println("NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY " + nyty);
+            String paivahetki = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + " " + allowedpoints.get(i).getStrtime() ;
+            LocalDateTime realTargetTime = LocalDateTime.parse(paivahetki, df);
+            Duration kesto = Duration.between(nyty,realTargetTime);
+            long lngmstrig= kesto.toMillis();
+            System.out.println("hälyjä tulossa millisekunteina: " + lngmstrig);
+
+
+ */
+
+
+
+
+
+            Intent alarmIntent = new Intent(this,AlarmReceiver.class);
+            pendingIntent=PendingIntent.getBroadcast(this,i,alarmIntent, 0);
+            alarmManager[i]=(AlarmManager) getSystemService(ALARM_SERVICE);
+            //alarmManager[i].set(AlarmManager.RTC_WAKEUP,lngmstrig,pendingIntent);
+            alarmManager[i].set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
+
+            intentArray.add(pendingIntent);
         }
 
 
     }
 
+    public void lataaPiste(View v) {
+
+
+        System.out.println("tehdään hälypiste.....");
+        //AlarmManager alarmManager=new AlarmManager();
+
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 16);
+        calendar.set(Calendar.MINUTE, 05);
+
+
+        long lngmstrig= 40000;
+
+        Intent alarmIntent = new Intent(this,AlarmReceiver.class);
+        pendingIntent=PendingIntent.getBroadcast(this,102,alarmIntent, 0);
+        manager =(AlarmManager) getSystemService(ALARM_SERVICE);
+        //manager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
+        manager.set(AlarmManager.RTC_WAKEUP,40000,pendingIntent);
+        System.out.println("hälypiste tehty.....");
+
+    }
+
+
+
+
+    /*
+    public void AlarmRunner(String targtime) {
+        manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        //int interval = 10000; //tää pois, ampuu 10sek välein hälyn
+
+        // need to get now, convert the timet to timestamp and calculate millis from that
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+
+        LocalDateTime nyty = LocalDateTime.now(); //.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        //System.out.println("NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY NYTY " + nyty);
+
+        String paivahetki = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + " " + targtime;
+        LocalDateTime realTargetTime = LocalDateTime.parse(paivahetki, df);
+
+        Duration kesto = Duration.between(nyty,realTargetTime);
+
+        long lngmstrig= kesto.toMillis();
+        System.out.println("hälyjä tulossa millisekunteina: " + lngmstrig);
+
+
+
+        //manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+        manager.setExact(AlarmManager.RTC_WAKEUP,lngmstrig,pendingIntent);
+
+
+
+
+        System.out.println("Alarm Set at " + targtime + " + " + lngmstrig + " millisekuntia");
+        Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
+    }
+
+
+     */
+/*
     public void ScheduledRunner(String smokeAllowed) {
         //the Date and time at which you want to execute
 
@@ -429,14 +552,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-       /* DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = null;
-        try {
-            date = ((SimpleDateFormat) dateFormatter).parse("2019-09-08 20:30:00");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }*/
-
         //Now create the time and schedule it
         Timer timer = new Timer();
 
@@ -451,7 +566,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+ */
 
+/*
     //The task which you want to execute
     private class MyTimeTask extends TimerTask {
 
@@ -495,6 +612,16 @@ public class MainActivity extends AppCompatActivity {
         notificationManagerCompat.notify(1000, notificationBuilder.build());
 
         }
+    }
+
+
+ */
+
+    public void cleanSmokePoint(View v) {
+
+        Integer ok =helper.adminCleanSmokePoints();
+
+
     }
 
 }

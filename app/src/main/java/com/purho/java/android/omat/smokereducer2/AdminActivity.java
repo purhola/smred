@@ -65,6 +65,9 @@ public void populate(View v){
 
 }
 
+    //TODO need a job for copying the database from ext storage to take into use!!
+
+
 
     public void SmokeExpander(String smoketime){
 
